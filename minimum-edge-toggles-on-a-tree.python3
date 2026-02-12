@@ -1,0 +1,41 @@
+import collections
+from typing import List
+
+class Solution:
+    def minimumFlips(self, n: int, edges: List[List[int]], start: str, target: str) -> List[int]:
+        adj = [[] for _ in range(n)]
+        for i, (u, v) in enumerate(edges):
+            adj[u].append((v, i))
+            adj[v].append((u, i))
+        
+        diff = [1 if start[i] != target[i] else 0 for i in range(n)]
+        
+        parent = [-1] * n
+        parent_edge = [-1] * n
+        order = []
+        queue = collections.deque([0])
+        visited = [False] * n
+        visited[0] = True
+        
+        while queue:
+            u = queue.popleft()
+            order.append(u)
+            for v, idx in adj[u]:
+                if not visited[v]:
+                    visited[v] = True
+                    parent[v] = u
+                    parent_edge[v] = idx
+                    queue.append(v)
+        
+        ans = []
+        for i in range(n - 1, -1, -1):
+            u = order[i]
+            if diff[u]:
+                p = parent[u]
+                if p == -1:
+                    return [-1]
+                ans.append(parent_edge[u])
+                diff[p] = 1 - diff[p]
+        
+        ans.sort()
+        return ans
